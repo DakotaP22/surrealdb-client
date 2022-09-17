@@ -1,10 +1,22 @@
 import { TreeItem } from "./TreeItem";
+const Surreal = require("surrealdb.js");
 
-export class DatabaseInfoProvider {
+export class DatabaseService {
   db: any;
 
-  constructor(db: any) {
-    this.db = db;
+  constructor(url: string) {
+    this.db = new Surreal(url + "/rpc");
+  }
+
+  async signIn(user: string, pass: string) {
+    await this.db.signin({
+      user,
+      pass,
+    });
+  }
+
+  async addNamespace(name: string) {
+    await this.db.query(`DEFINE NAMESPACE ${name};`);
   }
 
   async getInfo(): Promise<Namespace[]> {
