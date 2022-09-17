@@ -16,16 +16,17 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       const conn = await vscode.window.showInputBox({
         prompt: "Enter Connection URL",
+        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
       });
       const username = await vscode.window.showInputBox({
         prompt: "Enter User Name",
+        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
       });
       const password = await vscode.window.showInputBox({
         prompt: "Enter Password",
+        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
       });
-      // const conn = "http://localhost:8000";
-      // const username = "root";
-      // const password = "root";
+      if (!conn || !username || !password) return;
 
       try {
         const connections = await treeDataProvider.addConnection(conn, username, password);
@@ -58,18 +59,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
       const name = await vscode.window.showInputBox({
         prompt: "Enter a namespace name",
+        validateInput: (name) => {
+          // return text?.length > 0 ? null : "You must enter a value!";
+          if (!name || name.trim() === "") {
+            return "You must enter a value!";
+          } else if (
+            treeDataProvider.data
+              .find((conn) => conn.label === connection.url)
+              ?.children?.find((ns) => ns.label === name)
+          ) {
+            return "Namespace already exists!";
+          } else {
+            return null;
+          }
+        },
       });
-      if (!name || name.trim() === "") {
-        vscode.window.showErrorMessage("Namespace cannot be empty");
-        return;
-      } else if (
-        treeDataProvider.data
-          .find((conn) => conn.label === connection.url)
-          ?.children?.find((ns) => ns.label === name)
-      ) {
-        vscode.window.showErrorMessage("Namespace already exists");
-        return;
-      }
+      if (!name) return;
+
       await dbSvc.addNamespace(name);
       treeDataProvider.refresh();
     }

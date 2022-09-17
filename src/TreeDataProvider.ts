@@ -69,12 +69,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   }
 
   async addConnection(
-    url?: string,
-    username?: string,
-    password?: string
+    url: string,
+    username: string,
+    password: string
   ): Promise<SurrealConnection[]> {
-    if (!url || !username || !password) return [];
-
     this.connections.push(new SurrealConnection(url, username, password));
     await this.refresh();
     return this.connections;
