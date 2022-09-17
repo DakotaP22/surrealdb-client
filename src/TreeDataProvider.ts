@@ -8,9 +8,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   data: TreeItem[];
   connections!: SurrealConnection[];
 
-  constructor() {
+  constructor(connections: SurrealConnection[]) {
     this.data = [];
-    this.connections = [];
+    this.connections = connections;
   }
 
   getTreeItem(element: TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -30,6 +30,22 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   readonly onDidChangeTreeData: vscode.Event<TreeItem | undefined | null | void> =
     this._onDidChangeTreeData.event;
 
+  async load() {
+    this.data = [];
+    for (var connection of this.connections) {
+      const namespaces = await this.getNamespaces(
+        connection.url,
+        connection.username,
+        connection.password
+      );
+      const connectionElement = new TreeItem(
+        connection.url,
+        namespaces.map((namespace) => namespace.getAsTreeItem())
+      );
+      this.data.push(connectionElement);
+    }
+  }
+
   async refresh(): Promise<void> {
     this.data = [];
     for (var connection of this.connections) {
@@ -47,23 +63,26 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     this._onDidChangeTreeData.fire();
   }
 
-  async addConnection(url?: string, username?: string, password?: string): Promise<void> {
-    if (!url || !username || !password) return;
+  async addConnections(connections: SurrealConnection[]) {
+    this.connections = connections;
+    await this.refresh();
+  }
+
+  async addConnection(
+    url?: string,
+    username?: string,
+    password?: string
+  ): Promise<SurrealConnection[]> {
+    if (!url || !username || !password) return [];
 
     this.connections.push(new SurrealConnection(url, username, password));
-
-    this.refresh();
+    await this.refresh();
+    return this.connections;
   }
 
   async getNamespaces(url: string, user: string, pass: string): Promise<Namespace[]> {
-    let db = new Surreal(url + "/rpc");
-    await db.signin({
-      user,
-      pass,
-    });
-
     const dbSvc: DatabaseService = new DatabaseService(url);
     await dbSvc.signIn(user, pass);
-    return await dbSvc.getInfo();
+    return await dbSvc.getNamespaces();
   }
 }

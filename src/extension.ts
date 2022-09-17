@@ -1,9 +1,14 @@
 import * as vscode from "vscode";
 import { DatabaseService } from "./DatabaseService";
+import { SurrealConnection } from "./SurrealConnection";
 import { TreeDataProvider } from "./TreeDataProvider";
 
-export function activate(context: vscode.ExtensionContext) {
-  const treeDataProvider: TreeDataProvider = new TreeDataProvider();
+export async function activate(context: vscode.ExtensionContext) {
+  const savedConnections: SurrealConnection[] = context.globalState.get("connections") ?? [];
+
+  const treeDataProvider: TreeDataProvider = new TreeDataProvider(savedConnections);
+  await treeDataProvider.load();
+
   vscode.window.registerTreeDataProvider("connectionView", treeDataProvider);
 
   const addConnectionCmd = vscode.commands.registerCommand(
@@ -23,7 +28,8 @@ export function activate(context: vscode.ExtensionContext) {
       // const password = "root";
 
       try {
-        treeDataProvider.addConnection(conn, username, password);
+        const connections = await treeDataProvider.addConnection(conn, username, password);
+        context.globalState.update("connections", connections);
       } catch (ex) {
         console.error(ex);
       }
@@ -34,7 +40,12 @@ export function activate(context: vscode.ExtensionContext) {
     "surrealdb-explorer.addNamespace",
     async () => {
       const connections = treeDataProvider.connections;
-      const connectionURL = await vscode.window.showQuickPick(connections.map((conn) => conn.url));
+      const connectionURL = await vscode.window.showQuickPick(
+        connections.map((conn) => conn.url),
+        {
+          title: "Choose a connection",
+        }
+      );
       const connection = connections.find((conn) => conn.url === connectionURL);
 
       if (!connection) {

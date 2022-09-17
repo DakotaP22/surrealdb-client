@@ -19,7 +19,7 @@ export class DatabaseService {
     await this.db.query(`DEFINE NAMESPACE ${name};`);
   }
 
-  async getInfo(): Promise<Namespace[]> {
+  async getNamespaces(): Promise<Namespace[]> {
     let nsRes = await this.db.query("INFO FOR KV;");
     let namespacesForConnection = nsRes[0].result.ns;
     let namespaces: Namespace[] = [];
