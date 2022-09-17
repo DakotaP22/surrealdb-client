@@ -34,11 +34,15 @@
     "commands": [
       {
         "command": "surrealdb-explorer.addConnection",
-        "title": "Add Connection",
+        "title": "SurrealDB: Add Connection",
         "icon": {
           "light": "src/media/light/add.svg",
           "dark": "src/media/dark/add.svg"
         }
+      },
+      {
+        "command": "surrealdb-explorer.addNamespace",
+        "title": "SurrealDB: Add Namespace"
       }
     ],
     "menus": {

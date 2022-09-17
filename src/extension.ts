@@ -1,14 +1,11 @@
-import { resolveCliArgsFromVSCodeExecutablePath } from "@vscode/test-electron";
 import * as vscode from "vscode";
 import { TreeDataProvider } from "./TreeDataProvider";
-import * as SurrealClient from "./SurrealConnection";
-import { TreeItem } from "./TreeItem";
 
 export function activate(context: vscode.ExtensionContext) {
   const treeDataProvider: TreeDataProvider = new TreeDataProvider();
   vscode.window.registerTreeDataProvider("connectionView", treeDataProvider);
 
-  const disposable = vscode.commands.registerCommand(
+  const addConnectionCmd = vscode.commands.registerCommand(
     "surrealdb-explorer.addConnection",
     async () => {
       const conn = await vscode.window.showInputBox({
@@ -32,5 +29,5 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(disposable);
+  context.subscriptions.push(addConnectionCmd);
 }
