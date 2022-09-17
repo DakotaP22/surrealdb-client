@@ -16,15 +16,24 @@ export async function activate(context: vscode.ExtensionContext) {
     async () => {
       const conn = await vscode.window.showInputBox({
         prompt: "Enter Connection URL",
-        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
+        // TODO improve validator to prevent duplicate connections
+        validateInput: (text) => {
+          if (!(text?.trim() !== "")) {
+            return "You must enter a value!";
+          } else if (treeDataProvider.connections.find((conn) => conn.url === text)) {
+            return "Connection already exists!";
+          } else {
+            return null;
+          }
+        },
       });
       const username = await vscode.window.showInputBox({
         prompt: "Enter User Name",
-        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
+        validateInput: (text) => (!(text?.trim() !== "") ? null : "You must enter a value!"),
       });
       const password = await vscode.window.showInputBox({
         prompt: "Enter Password",
-        validateInput: (text) => (text?.length > 0 ? null : "You must enter a value!"),
+        validateInput: (text) => (!(text?.trim() !== "") ? null : "You must enter a value!"),
       });
       if (!conn || !username || !password) return;
 
@@ -61,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
         prompt: "Enter a namespace name",
         validateInput: (name) => {
           // return text?.length > 0 ? null : "You must enter a value!";
-          if (!name || name.trim() === "") {
+          if (!(name?.trim() !== "")) {
             return "You must enter a value!";
           } else if (
             treeDataProvider.data
