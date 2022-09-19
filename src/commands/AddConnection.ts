@@ -1,13 +1,22 @@
 import * as vscode from "vscode";
 import { SurrealConnection } from "../SurrealConnection";
+import * as Persistence from "../Persistence";
 import { TreeDataProvider } from "../TreeDataProvider";
 
-export async function addConnection(treeDataProvider: TreeDataProvider): Promise<SurrealConnection[]> {
-  const { url, username, password } = await promptUser(treeDataProvider.connections);
-  return await treeDataProvider.addConnection(url, username, password);
+export async function addConnection(
+  context: vscode.ExtensionContext,
+  treeDataProvider: TreeDataProvider
+): Promise<void> {
+  console.log("ADDING CONNECTION");
+  const connections = Persistence.read(context);
+  console.log(connections);
+  const newConnection = await promptUser(connections);
+  console.log(newConnection);
+  await Persistence.add(context, newConnection);
+  await treeDataProvider.refresh();
 }
 
-async function promptUser(existing_connections: SurrealConnection[]): Promise<AddConnectionAnswers> {
+async function promptUser(existing_connections: SurrealConnection[]): Promise<SurrealConnection> {
   const url = await vscode.window.showInputBox({
     prompt: "Enter Connection URL",
     validateInput: (text) => validateConnectionInput(text, existing_connections),
@@ -27,7 +36,7 @@ async function promptUser(existing_connections: SurrealConnection[]): Promise<Ad
     throw new Error();
   }
 
-  return { url, username, password } as AddConnectionAnswers;
+  return new SurrealConnection(url, username, password);
 }
 
 function validateConnectionInput(text: string, existing_connections: SurrealConnection[]) {
@@ -41,7 +50,7 @@ function validateConnectionInput(text: string, existing_connections: SurrealConn
 }
 
 function validateNotNullOrEmpty(text: string) {
-  return !(text?.trim() !== "") ? null : "You must enter a value!";
+  return text?.trim() !== "" ? null : "You must enter a value!";
 }
 
 interface AddConnectionAnswers {

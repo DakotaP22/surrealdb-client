@@ -1,4 +1,4 @@
-import { TreeItem } from "./TreeItem";
+import { TreeItem } from "../../TreeItem";
 const Surreal = require("surrealdb.js");
 
 export class DatabaseService {
@@ -24,41 +24,42 @@ export class DatabaseService {
     let namespacesForConnection = nsRes[0].result.ns;
     let namespaces: Namespace[] = [];
     for (let namespaceName in namespacesForConnection) {
-      const namsespace: Namespace = new Namespace(namespaceName, this.db);
-      await namsespace.getDatabases();
-      namespaces.push(namsespace);
+      const namespace: Namespace = new Namespace(namespaceName, this.db);
+      await namespace.getDatabases();
+      namespaces.push(namespace);
     }
     return namespaces;
   }
 }
 
 export class Namespace {
-  namespace: string;
+  name: string;
   databases: Database[];
   db: any;
 
-  constructor(namespace: string, db: any) {
-    this.namespace = namespace;
-    this.db = db;
+  constructor(name: string, db: any) {
+    this.name = name;
     this.databases = [];
-  }
-
-  async getDatabases() {
-    await this.db.use(this.namespace, "*");
-    let dbRes = await this.db.query("INFO FOR NS;");
-    let databasesForNamespace = dbRes[0].result.db;
-    for (let dbName in databasesForNamespace) {
-      const database: Database = new Database(this.namespace, dbName, this.db);
-      await database.getTables();
-      this.databases.push(database);
-    }
+    this.db = db;
   }
 
   getAsTreeItem(): TreeItem {
     return new TreeItem(
-      this.namespace,
+      this.name,
       this.databases.map((db) => db.getAsTreeItem())
     );
+  }
+
+  async getDatabases() {
+    this.databases = [];
+    await this.db.use(this.name, "*");
+    let dbRes = await this.db.query("INFO FOR NS;");
+    let databasesForNamespace = dbRes[0].result.db;
+    for (let dbName in databasesForNamespace) {
+      const database: Database = new Database(this.name, dbName, this.db);
+      await database.getTables();
+      this.databases.push(database);
+    }
   }
 }
 
@@ -76,6 +77,7 @@ export class Database {
   }
 
   async getTables() {
+    this.tables = [];
     await this.db.use(this.namespace, this.dbName);
     let tblRes = await this.db.query("INFO FOR DB;");
     let tablesForDB = tblRes[0].result.tb;

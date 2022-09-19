@@ -41,6 +41,10 @@
         }
       },
       {
+        "command": "surrealdb-explorer.removeNamespace",
+        "title": "SurrealDB Explorer: Remove Connection"
+      },
+      {
         "command": "surrealdb-explorer.addNamespace",
         "title": "SurrealDB Explorer: Add Namespace"
       }
