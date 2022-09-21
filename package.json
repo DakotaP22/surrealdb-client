@@ -41,12 +41,24 @@
         }
       },
       {
-        "command": "surrealdb-explorer.removeNamespace",
+        "command": "surrealdb-explorer.removeConnection",
         "title": "SurrealDB Explorer: Remove Connection"
+      },
+      {
+        "command": "surrealdb-explorer.refreshConnections",
+        "title": "SurrealDB Explorer: Refresh Connections"
       },
       {
         "command": "surrealdb-explorer.addNamespace",
         "title": "SurrealDB Explorer: Add Namespace"
+      },
+      {
+        "command": "surrealdb-explorer.removeNamespace",
+        "title": "SurrealDB Explorer: Remove Namespace"
+      },
+      {
+        "command": "surrealdb-explorer.launchDocs",
+        "title": "SurrealDB Explorer: Open Docs In Browser"
       }
     ],
     "menus": {

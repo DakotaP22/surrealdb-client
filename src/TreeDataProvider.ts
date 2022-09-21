@@ -37,18 +37,28 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     const connections = Persistence.read(this.context).sort((a, b) => a.url.localeCompare(b.url));
 
     for (var connection of connections) {
-      const namespaces = await this.getNamespaces(connection.url, connection.username, connection.password);
-      const connectionElement = new TreeItem(
-        connection.url,
-        namespaces.map((namespace) => namespace.getAsTreeItem())
-      );
+      var connectionElement;
+      try {
+        const namespaces = await this.getInfo(connection.url, connection.username, connection.password);
+        connectionElement = new TreeItem(
+          connection.url,
+          namespaces.map((namespace) => namespace.getAsTreeItem())
+        );
+      } catch (err) {
+        connectionElement = new TreeItem(connection.url, undefined, false, "debug-disconnect");
+      }
       this.data.push(connectionElement);
     }
     this._onDidChangeTreeData.fire();
   }
 
-  async getNamespaces(url: string, user: string, pass: string): Promise<Namespace[]> {
+  async getInfo(url: string, user: string, pass: string): Promise<Namespace[]> {
     const dbSvc: DatabaseService = new DatabaseService(url);
+    const connected = await dbSvc.connect();
+    if (!connected) {
+      throw new Error("Unable to connect to " + url);
+    }
+
     await dbSvc.signIn(user, pass);
     return await dbSvc.getNamespaces();
   }

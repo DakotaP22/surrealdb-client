@@ -5,18 +5,32 @@ export class DatabaseService {
   db: any;
 
   constructor(url: string) {
-    this.db = new Surreal(url + "/rpc");
+    const uri = url + "/rpc";
+    this.db = new Surreal(uri);
   }
 
-  async signIn(user: string, pass: string) {
-    await this.db.signin({
-      user,
-      pass,
+  connect(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const timeoutId = setTimeout(() => {
+        console.log("TIMED OUT!");
+        resolve(false);
+      }, 5 * 1000);
+      this.db.wait().then(() => {
+        clearTimeout(timeoutId);
+        resolve(true);
+      });
     });
   }
 
-  async addNamespace(name: string) {
-    await this.db.query(`DEFINE NAMESPACE ${name};`);
+  async signIn(user: string, pass: string) {
+    try {
+      await this.db.signin({
+        user,
+        pass,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async getNamespaces(): Promise<Namespace[]> {
@@ -29,6 +43,14 @@ export class DatabaseService {
       namespaces.push(namespace);
     }
     return namespaces;
+  }
+
+  async addNamespace(name: string) {
+    await this.db.query(`DEFINE NAMESPACE ${name};`);
+  }
+
+  async removeNamespace(name: string) {
+    await this.db.query(`REMOVE NAMESPACE ${name}`);
   }
 }
 

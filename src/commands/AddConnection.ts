@@ -7,11 +7,8 @@ export async function addConnection(
   context: vscode.ExtensionContext,
   treeDataProvider: TreeDataProvider
 ): Promise<void> {
-  console.log("ADDING CONNECTION");
   const connections = Persistence.read(context);
-  console.log(connections);
   const newConnection = await promptUser(connections);
-  console.log(newConnection);
   await Persistence.add(context, newConnection);
   await treeDataProvider.refresh();
 }
