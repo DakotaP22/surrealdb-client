@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { SurrealConnection } from "../../SurrealConnection";
 import * as Persistence from "../../Persistence";
+import { promptForExistingConnectionUrl } from "../../prompt/Prompts";
+import { SurrealConnection } from "../../SurrealConnection";
 import { TreeDataProvider } from "../../TreeDataProvider";
 
 export async function removeConnection(context: vscode.ExtensionContext, treeDataProvider: TreeDataProvider) {
@@ -11,12 +12,7 @@ export async function removeConnection(context: vscode.ExtensionContext, treeDat
     return;
   }
 
-  const url = await vscode.window.showQuickPick(savedConnections.map((conn) => conn.url));
-
-  if (!url) {
-    vscode.window.showErrorMessage("You did not select an existing connection!");
-    return;
-  }
+  const url = await promptForExistingConnectionUrl(savedConnections);
 
   await Persistence.remove(context, url);
   await treeDataProvider.refresh();

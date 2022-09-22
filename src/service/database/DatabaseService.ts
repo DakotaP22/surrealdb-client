@@ -52,6 +52,10 @@ export class DatabaseService {
   async removeNamespace(name: string) {
     await this.db.query(`REMOVE NAMESPACE ${name}`);
   }
+
+  async createDatabase(namespace: string, dbName: string) {
+    await this.db.query(`DEFINE DATABASE ${dbName}`);
+  }
 }
 
 export class Namespace {
