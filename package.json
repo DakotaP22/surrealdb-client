@@ -45,6 +45,10 @@
         "title": "SurrealDB Explorer: Remove Connection"
       },
       {
+        "command": "surrealdb-explorer.editConnection",
+        "title": "SurrealDB Explorer: Edit Connection"
+      },
+      {
         "command": "surrealdb-explorer.refreshConnections",
         "title": "SurrealDB Explorer: Refresh Connections"
       },

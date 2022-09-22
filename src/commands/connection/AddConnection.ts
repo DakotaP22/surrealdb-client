@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
-import { SurrealConnection } from "../SurrealConnection";
-import * as Persistence from "../Persistence";
-import { TreeDataProvider } from "../TreeDataProvider";
+import { SurrealConnection } from "../../SurrealConnection";
+import * as Persistence from "../../Persistence";
+import { TreeDataProvider } from "../../TreeDataProvider";
 
 export async function addConnection(
   context: vscode.ExtensionContext,
   treeDataProvider: TreeDataProvider
 ): Promise<void> {
-  const connections = Persistence.read(context);
+  const connections = Persistence.readAll(context);
   const newConnection = await promptUser(connections);
   await Persistence.add(context, newConnection);
   await treeDataProvider.refresh();

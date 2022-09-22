@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { SurrealConnection } from "../SurrealConnection";
-import * as Persistence from "../Persistence";
-import { TreeDataProvider } from "../TreeDataProvider";
+import { SurrealConnection } from "../../SurrealConnection";
+import * as Persistence from "../../Persistence";
+import { TreeDataProvider } from "../../TreeDataProvider";
 
 export async function removeConnection(context: vscode.ExtensionContext, treeDataProvider: TreeDataProvider) {
-  const savedConnections: SurrealConnection[] = Persistence.read(context);
+  const savedConnections: SurrealConnection[] = Persistence.readAll(context);
 
   if (!savedConnections || savedConnections.length === 0) {
     vscode.window.showErrorMessage("You have no connections to remove!");

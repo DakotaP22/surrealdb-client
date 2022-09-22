@@ -3,13 +3,12 @@ import * as Persistence from "./Persistence";
 import { DatabaseService, Namespace } from "./service/database/DatabaseService";
 import { SurrealConnection } from "./SurrealConnection";
 import { TreeItem } from "./TreeItem";
-const Surreal = require("surrealdb.js");
 
 export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   data: TreeItem[];
   context: vscode.ExtensionContext;
 
-  constructor(connections: SurrealConnection[], context: vscode.ExtensionContext) {
+  constructor(context: vscode.ExtensionContext) {
     this.data = [];
     this.context = context;
   }
@@ -34,7 +33,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   async refresh(): Promise<void> {
     console.log("REFERESHING TREE VIEW!");
     this.data = [];
-    const connections = Persistence.read(this.context).sort((a, b) => a.url.localeCompare(b.url));
+    const connections = Persistence.readAll(this.context).sort((a, b) => a.url.localeCompare(b.url));
 
     for (var connection of connections) {
       var connectionElement;

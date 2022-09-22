@@ -1,11 +1,11 @@
-import { DatabaseService } from "../service/database/DatabaseService";
-import { SurrealConnection } from "../SurrealConnection";
-import { TreeDataProvider } from "../TreeDataProvider";
+import { DatabaseService } from "../../service/database/DatabaseService";
+import { SurrealConnection } from "../../SurrealConnection";
+import { TreeDataProvider } from "../../TreeDataProvider";
 import * as vscode from "vscode";
-import * as Persistence from "../Persistence";
+import * as Persistence from "../../Persistence";
 
 export async function removeNamespace(context: vscode.ExtensionContext, treeDataProvider: TreeDataProvider) {
-  const connections = Persistence.read(context);
+  const connections = Persistence.readAll(context);
   const connectionURL = await promptForConnectionUrl(connections);
   const connection = getConnectionFromUrl(connectionURL, connections);
   const namespaceName = await promptUserForNamespaceName(treeDataProvider, connection);
