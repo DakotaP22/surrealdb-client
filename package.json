@@ -61,6 +61,14 @@
         "title": "SurrealDB Explorer: Remove Namespace"
       },
       {
+        "command": "surrealdb-explorer.addDatabase",
+        "title": "SurrealDB Explorer: Add Database"
+      },
+      {
+        "command": "surrealdb-explorer.openQueryEditor",
+        "title": "SurrealDB Explorer: New Query Editor"
+      },
+      {
         "command": "surrealdb-explorer.launchDocs",
         "title": "SurrealDB Explorer: Open Docs In Browser"
       }

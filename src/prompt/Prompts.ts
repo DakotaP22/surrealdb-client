@@ -1,6 +1,11 @@
 import { SurrealConnection } from "../SurrealConnection";
 import * as vscode from "vscode";
-import { validateConnectionInput, validateNotNullOrEmpty } from "./PromptValidators";
+import {
+  validateConnectionInput,
+  validateDatabaseDoesNotExist,
+  validateNamespaceDoesNotExist,
+  validateNotNullOrEmpty,
+} from "./PromptValidators";
 import { TreeDataProvider } from "../TreeDataProvider";
 
 export async function promptUserForConnection(existing_connections: SurrealConnection[]): Promise<SurrealConnection> {
@@ -35,6 +40,13 @@ export async function promptForExistingConnectionUrl(connections: SurrealConnect
   return response;
 }
 
+export async function promptForExistingConnection(connections: SurrealConnection[]) {
+  const url = await promptForExistingConnectionUrl(connections);
+  const connection = connections.find((conn) => conn.url === url);
+  if (!connection) throw new Error(`${url} does not match any existing connections`);
+  return connection;
+}
+
 export async function promptForUsername() {
   const response = await vscode.window.showInputBox({
     prompt: "Enter Username",
@@ -56,18 +68,7 @@ export async function promptForPassword() {
 export async function promptUserForNamespaceName(treeDataProvider: TreeDataProvider, connection: SurrealConnection) {
   const name = await vscode.window.showInputBox({
     prompt: "Enter a namespace name",
-    validateInput: (name) => {
-      // return text?.length > 0 ? null : "You must enter a value!";
-      if (!(name?.trim() !== "")) {
-        return "You must enter a value!";
-      } else if (
-        treeDataProvider.data.find((conn) => conn.label === connection.url)?.children?.find((ns) => ns.label === name)
-      ) {
-        return "Namespace already exists!";
-      } else {
-        return null;
-      }
-    },
+    validateInput: (text) => validateNamespaceDoesNotExist(text, treeDataProvider, connection),
   });
   if (!name) throw new Error("Namespace name cannot be null!");
   return name;
@@ -88,4 +89,17 @@ export async function promptUserForExistingNamespaceName(
   });
   if (!name) throw new Error("Namespace name cannot be null!");
   return name;
+}
+
+export async function promptUserForDatabaseName(
+  treeDataProvider: TreeDataProvider,
+  connection: SurrealConnection,
+  namespace: string
+) {
+  const response = await vscode.window.showInputBox({
+    prompt: "Enter Database Name",
+    validateInput: (text) => validateDatabaseDoesNotExist(text, treeDataProvider, connection, namespace),
+  });
+  if (!response) throw new Error("You must enter a database name!");
+  return response;
 }

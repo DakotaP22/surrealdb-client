@@ -45,6 +45,38 @@ export class DatabaseService {
     return namespaces;
   }
 
+  async getNamespaceNames(): Promise<string[]> {
+    const nsRes = await this.db.query("INFO FOR KV;");
+    const namespacesForConnection = nsRes[0].result.ns;
+    const namespaceNames = [];
+    for (let namespaceName in namespacesForConnection) {
+      namespaceNames.push(namespaceName);
+    }
+    return namespaceNames;
+  }
+
+  async getDatabaseNames(namespace: string): Promise<string[]> {
+    const databases = [];
+    await this.db.use(namespace, "*");
+    let dbRes = await this.db.query("INFO FOR NS;");
+    let databasesForNamespace = dbRes[0].result.db;
+    for (let dbName in databasesForNamespace) {
+      databases.push(dbName);
+    }
+    return databases;
+  }
+
+  async getTableNames(namespace: string, database: string) {
+    const tableNames = [];
+    await this.db.use(namespace, database);
+    let tblRes = await this.db.query("INFO FOR DB;");
+    let tablesForDB = tblRes[0].result.tb;
+    for (let tableName in tablesForDB) {
+      tableNames.push(tableName);
+    }
+    return tableNames;
+  }
+
   async addNamespace(name: string) {
     await this.db.query(`DEFINE NAMESPACE ${name};`);
   }
@@ -54,6 +86,7 @@ export class DatabaseService {
   }
 
   async createDatabase(namespace: string, dbName: string) {
+    await this.db.use(namespace, "*");
     await this.db.query(`DEFINE DATABASE ${dbName}`);
   }
 }

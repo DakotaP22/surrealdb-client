@@ -7,6 +7,8 @@ import { launchDocs } from "./commands/LaunchDocs";
 import { addNamespace } from "./commands/namespace/AddNamespace";
 import { TreeDataProvider } from "./TreeDataProvider";
 import { removeNamespace } from "./commands/namespace/RemoveNamespace";
+import { addDatabase } from "./commands/database/AddDatabase";
+import { openQueryEditor } from "./commands/OpenQueryEditor";
 
 export async function activate(context: vscode.ExtensionContext) {
   const treeDataProvider: TreeDataProvider = new TreeDataProvider(context);
@@ -53,4 +55,14 @@ export async function activate(context: vscode.ExtensionContext) {
     await removeNamespace(context, treeDataProvider);
   });
   context.subscriptions.push(removeNamespaceCmd);
+
+  const addDatabaseCmd = vscode.commands.registerCommand("surrealdb-explorer.addDatabase", async () => {
+    await addDatabase(context, treeDataProvider);
+  });
+  context.subscriptions.push(addDatabaseCmd);
+
+  const openQueryEditorCmd = vscode.commands.registerCommand("surrealdb-explorer.openQueryEditor", async () => {
+    openQueryEditor(context);
+  });
+  context.subscriptions.push(addDatabaseCmd);
 }
